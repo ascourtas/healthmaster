@@ -1,4 +1,4 @@
-import argparse
+from argparse import ArgumentParser, RawTextHelpFormatter
 from bs4 import BeautifulSoup
 import os
 import pandas as pd
@@ -20,8 +20,18 @@ def read_arguments():
 
     :return: A tuple of the argument values.
     """
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-k", "--keyword", help="The substring to search for in the chargemaster descriptions.")
+    # use argeparse with our own formatting for 'help' strings
+    parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
+    parser.add_argument("-s", "--search", help="The string to search for in the chargemaster descriptions. \n"
+                                                "Will accept any regex pattern provided. Case insensitive. \n\n"
+                                                ""
+                                                "Ex: 'python healthmaster.py -k colon' matches any data \n"
+                                                "entry that contains the substring 'colon', such as: \n"
+                                                "'colonoscopy', 'Colon', 'colonies'\n\n"
+                                                ""
+                                                "Ex: 'python healthmaster.py -k \\bcolon\\b will only \n"
+                                                "match the substring 'colon' (still case insensitive)\n")
+
     parser.add_argument("-d", "--dest_dir", help="The full path to the directory to write the scraped files to.")
 
     args = parser.parse_args()
@@ -31,7 +41,14 @@ def read_arguments():
     else:
         dest_dir = args.dest_dir
 
-    return (args.keyword, dest_dir)
+    # create destination directory if necessary
+    try:
+        os.makedir(dest_dir)
+    # makedir throws an exception if directory already exists; ignore it
+    except:
+        pass
+
+    return (args.search, dest_dir)
 
 
 def fetch_zip_files(dest_dir, url, pattern):
@@ -119,17 +136,9 @@ def get_charge_sheet(wrkbk, sheet_index):
 
 def main():
     # get arguments from the commandline
-    keyword, dest_dir = read_arguments()
+    search, dest_dir = read_arguments()
 
     page_url = "https://www.partners.org/for-patients/Patient-Billing-Financial-Assistance/Hospital-Charge-Listing.aspx"
-
-    # create destination directory if necessary
-    # TODO: maybe also move this to read_arguments()?
-    try:
-        os.makedir(dest_dir)
-    # makedir throws an exception if directory already exists; ignore it
-    except:
-        pass
 
     # get data files and store them in dest_dir
     fetch_zip_files(dest_dir, page_url, "Hospital-Charges")
@@ -137,13 +146,13 @@ def main():
     # create a dict of workbook Dataframes, with filenames as keys
     hospital_prices = load_data(dest_dir)
 
-    # if the user specifies a keyword, then we should search for the relevant rows in all hospital data
-    if keyword:
+    # if the user specifies a search pattern, then we should search for the relevant rows in all hospital data
+    if search:
         for hospital_file, data in hospital_prices.iteritems():
             # get first sheet (i.e. the only relevant one in Partners data)
             sheet = get_charge_sheet(data, 0)
-            # find all of the rows that contain the keyword (case insensitive), and then extract them to new Dataframe
-            matching_data = sheet[sheet['Description'].str.contains(keyword, case=False)]
+            # find all of the rows that contain the search pattern (case insensitive), and then extract them
+            matching_data = sheet[sheet['Description'].str.contains(search, case=False)]
             if not matching_data.empty:
                 print "\n\n {} \n".format(hospital_file)
                 print matching_data
