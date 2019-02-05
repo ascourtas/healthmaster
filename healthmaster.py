@@ -37,7 +37,12 @@ def read_arguments():
 
     parser.add_argument("-d", "--dest_dir", help="The full path to the directory to write the scraped files to.")
     parser.add_argument("-w", "--write_to_file", dest="out_path",
-                                            help="The full filepath to a file to write the search results to.")
+                                            help="The full filepath to a file to write the search results to. \n"
+                                                 "If not specified, the results will be written to stdout.\n"
+                                                 "Results are written as a formatted string.\n\n"
+                                                 ""
+                                                 "NOTE: Does NOT overwrite file; if you use the same filename\n"
+                                                 "twice in a row, the results will be appended at the bottom.\n")
 
     args = parser.parse_args()
 
@@ -139,6 +144,32 @@ def get_charge_sheet(wrkbk, sheet_index):
     return sheet
 
 
+def write_results(df, hospital_filename, filepath):
+    """
+    Write the dataframe to either stdout or filepath (if specified) in a nice human-readable format (without indicies,
+    and with the original hospital filename as a title).
+
+    :param df: The dataframe containing the Charge Code, Description, and Price of each billable item.
+    :param hospital_filename: The filename of the chargemaster, containing the originating hospital's name.
+    :param filepath: If designated, writes the results to the full filepath instead of stdout.
+    :return: N/A
+    """
+    # write out the dataframe as a string
+    hospital_header = "\n\n {} \n".format(hospital_filename)
+    data_string = df.to_string(index=False)
+
+    # if designated on commandline, write to file
+    if filepath:
+        print "Writing search results for {} to {}".format(hospital_filename, filepath)
+        with open(filepath, "a") as out:
+            out.write(hospital_header)
+            out.write(data_string)
+    # otherwise, write to stdout
+    else:
+        print hospital_header
+        print data_string
+
+
 def main():
     # get arguments from the commandline
     pattern, dest_dir, out_path = read_arguments()
@@ -153,22 +184,15 @@ def main():
 
     # if user specifies a search pattern or keyword, then we should search for the relevant rows in all hospital data
     if pattern:
-        for hospital_file, data in hospital_prices.iteritems():
+        for hospital_filename, data in hospital_prices.iteritems():
             # get first sheet (i.e. the only relevant one in Partners data)
             sheet = get_charge_sheet(data, 0)
             # find all of the rows that contain the search pattern (case insensitive), and then extract them
             matching_data = sheet[sheet['Description'].str.contains(pattern, case=False)]
             if not matching_data.empty:
-                print "\n\n {} \n".format(hospital_file)
-                print matching_data
+                write_results(matching_data, hospital_filename, out_path)
+
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
