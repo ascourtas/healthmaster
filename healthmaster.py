@@ -18,13 +18,20 @@ def read_arguments():
     """
     Define and read in commandline arguments.
 
-    :return: A list of arguments read from the commandline.
+    :return: A tuple of the argument values.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-k", "--keyword", help="The substring to search for in the chargemaster descriptions.")
     parser.add_argument("-d", "--dest_dir", help="The full path to the directory to write the scraped files to.")
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    if args.dest_dir is None:
+        dest_dir = "./output"
+    else:
+        dest_dir = args.dest_dir
+
+    return (args.keyword, dest_dir)
 
 
 def fetch_zip_files(dest_dir, url, pattern):
@@ -111,18 +118,13 @@ def get_charge_sheet(wrkbk, sheet_index):
 
 
 def main():
-
     # get arguments from the commandline
-    args = read_arguments()
-
-    if args.dest_dir is None:
-        dest_dir = "./output"
-    else:
-        dest_dir = args.dest_dir
+    keyword, dest_dir = read_arguments()
 
     page_url = "https://www.partners.org/for-patients/Patient-Billing-Financial-Assistance/Hospital-Charge-Listing.aspx"
 
     # create destination directory if necessary
+    # TODO: maybe also move this to read_arguments()?
     try:
         os.makedir(dest_dir)
     # makedir throws an exception if directory already exists; ignore it
