@@ -22,8 +22,11 @@ def read_arguments():
     """
     # use argeparse with our own formatting for 'help' strings
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
-    parser.add_argument("-s", "--search", help="The string to search for in the chargemaster descriptions. \n"
-                                                "Will accept any regex pattern provided. Case insensitive. \n\n"
+    parser.description = "A commandline utility to fetch hospital chargemasters (i.e. billing lists to insurance \n" \
+                         "companies). Use flags to optionally search for and output specific chargemaster items."
+    parser.add_argument("-s", "--search", dest="pattern",
+                                            help="The keyword or regex pattern to search for in the chargemaster \n"
+                                                "descriptions. Case insensitive. \n\n"
                                                 ""
                                                 "Ex: 'python healthmaster.py -k colon' matches any data \n"
                                                 "entry that contains the substring 'colon', such as: \n"
@@ -33,6 +36,8 @@ def read_arguments():
                                                 "match the substring 'colon' (still case insensitive)\n")
 
     parser.add_argument("-d", "--dest_dir", help="The full path to the directory to write the scraped files to.")
+    parser.add_argument("-w", "--write_to_file", dest="out_path",
+                                            help="The full filepath to a file to write the search results to.")
 
     args = parser.parse_args()
 
@@ -48,7 +53,7 @@ def read_arguments():
     except:
         pass
 
-    return (args.search, dest_dir)
+    return (args.pattern, dest_dir, args.out_path)
 
 
 def fetch_zip_files(dest_dir, url, pattern):
@@ -136,7 +141,7 @@ def get_charge_sheet(wrkbk, sheet_index):
 
 def main():
     # get arguments from the commandline
-    search, dest_dir = read_arguments()
+    pattern, dest_dir, out_path = read_arguments()
 
     page_url = "https://www.partners.org/for-patients/Patient-Billing-Financial-Assistance/Hospital-Charge-Listing.aspx"
 
@@ -146,13 +151,13 @@ def main():
     # create a dict of workbook Dataframes, with filenames as keys
     hospital_prices = load_data(dest_dir)
 
-    # if the user specifies a search pattern, then we should search for the relevant rows in all hospital data
-    if search:
+    # if user specifies a search pattern or keyword, then we should search for the relevant rows in all hospital data
+    if pattern:
         for hospital_file, data in hospital_prices.iteritems():
             # get first sheet (i.e. the only relevant one in Partners data)
             sheet = get_charge_sheet(data, 0)
             # find all of the rows that contain the search pattern (case insensitive), and then extract them
-            matching_data = sheet[sheet['Description'].str.contains(search, case=False)]
+            matching_data = sheet[sheet['Description'].str.contains(pattern, case=False)]
             if not matching_data.empty:
                 print "\n\n {} \n".format(hospital_file)
                 print matching_data
