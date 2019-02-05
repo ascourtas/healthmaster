@@ -81,7 +81,7 @@ def load_data(dir):
     data_dict = {}
     for filename in os.listdir(dir):
         # TODO: remove, just meant for debugging
-        if "MGH" not in filename : continue
+        # if "MGH" not in filename : continue
 
         # get name and file extension
         filename_parts = filename.split(".")
@@ -137,10 +137,16 @@ def main():
     # create a dict of workbook Dataframes, with filenames as keys
     hospital_prices = load_data(dest_dir)
 
-    # get the first sheet of the MGH data
-    mgh_sheet = get_charge_sheet(hospital_prices['MGH Standard Charge File'], 0)
-
-    # do stuff with sheet
+    # if the user specifies a keyword, then we should search for the relevant rows in all hospital data
+    if keyword:
+        for hospital_file, data in hospital_prices.iteritems():
+            # get first sheet (i.e. the only relevant one in Partners data)
+            sheet = get_charge_sheet(data, 0)
+            # find all of the rows that contain the keyword (case insensitive), and then extract them to new Dataframe
+            matching_data = sheet[sheet['Description'].str.contains(keyword, case=False)]
+            if not matching_data.empty:
+                print "\n\n {} \n".format(hospital_file)
+                print matching_data
 
 
 if __name__ == "__main__":
