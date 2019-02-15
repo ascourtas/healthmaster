@@ -22,21 +22,24 @@ def fetch_data_files(dest_dir, url, pattern):
     html_soup = BeautifulSoup(html_page, "html.parser")
 
     # match all links in the HTML dump that contain the designated regex pattern; these should be the zip links
+
     for link_html in html_soup.findAll('a', attrs={'href': re.compile(pattern)}):
         link = link_html.get('href')
 
         try:
             # download the zip file from the url
             zip_name, headers = urllib.urlretrieve(link)
-            # unpack zip to designated directory
+            # unpack zip to designated directory and print status
             with zipfile.ZipFile(zip_name) as zip:
                 zip.extractall(dest_dir)
                 print "Successfully unpacked zip '{}' \n\t Link:{} \n\t Destination:{}.".format(zip_name, link,
                                                                                                 dest_dir)
                 for file in zip.filelist:
                     print "\t Files: \n\t\t {}".format(file.filename)
+        except zipfile.BadZipfile as e:
+            print "Error unpacking zip from link '{}': {}".format(link, str(e))
         except Exception as e:
-            print "Error with zip '{}' from link {}".format(zip_name, link)
+            print "Error retrieving file from link '{}': {}".format(link, str(e))
 
 
 def main():
@@ -52,7 +55,6 @@ def main():
         pass
 
     fetch_data_files(dest_dir, page_url, "Hospital-Charges")
-
 
 
 
