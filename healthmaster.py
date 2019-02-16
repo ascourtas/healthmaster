@@ -1,5 +1,7 @@
 from bs4 import BeautifulSoup
+import numpy as np
 import os
+import pandas as pd
 import re
 import urllib
 import zipfile
@@ -42,6 +44,31 @@ def fetch_data_files(dest_dir, url, pattern):
             print "Error retrieving file from link '{}': {}".format(link, str(e))
 
 
+def load_data(dir):
+    """
+    Load all files in the designated directory (dir) into a dict mapped by filename.
+
+    NOTE: currently only works with Excel files.
+
+    :param dir: Directory to load data files from.
+    :return: Dict with filenames (sans extensions) as keys and pd.Dataframes of data as values.
+    """
+    data_dict = {}
+    for filename in os.listdir(dir):
+        # get name and file extension
+        filename_parts = filename.split(".")
+
+        if filename_parts[1] in ['xlsx', 'xls', 'xlsm']:
+            filepath = os.path.join(dir, filename)
+            data = pd.ExcelFile(filepath)
+            print "Successfully loaded {}".format(filepath)
+        else:
+            print "Error: File format {} not currently supported, cannot load {}".format(filename_parts[1], filepath)
+
+        data_dict[filename_parts[0]] = data
+
+    return data_dict
+
 def main():
     page_url = "https://www.partners.org/for-patients/Patient-Billing-Financial-Assistance/Hospital-Charge-Listing.aspx"
 
@@ -54,7 +81,15 @@ def main():
     except:
         pass
 
+    # get data files and store them in dest_dir
     fetch_data_files(dest_dir, page_url, "Hospital-Charges")
+
+    # create a dict of data bases, with filenames as keys (own function)
+    hospital_prices = load_data(dest_dir)
+
+    mgh =  hospital_prices['MGH Standard Charge File']
+
+
 
 
 
