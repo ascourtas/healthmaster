@@ -96,7 +96,8 @@ def get_charge_sheet(wrkbk, sheet_index):
     return sheet
 
 
-def main():
+# def main():   # commented out for now because of Flask app
+def do_work():
     page_url = "https://www.partners.org/for-patients/Patient-Billing-Financial-Assistance/Hospital-Charge-Listing.aspx"
 
     # create destination directory if necessary
@@ -120,8 +121,8 @@ def main():
     # do stuff with sheet
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
 
 
 
