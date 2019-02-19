@@ -8,7 +8,7 @@ Thank you to [VOX's surprise billing reporting](https://www.vox.com/health-care/
 Data for this project is made possible by the The Affordable Care Act, which as of January 1st, 2019, [requires all hospitals](https://www.ajc.com/news/national/hospital-prices-are-about-public/2jXYHgoR5CObBj6fSJQQUO/) in the U.S. to make their chargemasters publicly available. 
 
 ---
-## Usage
+# Usage
 Clone the repo. From the root of the repo, run
 
  `python healthmaster.py`
@@ -24,7 +24,6 @@ Clone the repo. From the root of the repo, run
  * only works for Partners Healthcare Network hospitals in the Boston area (see their data listing [here](https://www.partners.org/for-patients/Patient-Billing-Financial-Assistance/Hospital-Charge-Listing.aspx))
  * only works for Excel workbooks
  
----
 ## Prioritized TODOs
 1. Set up accessible web app, hosting Partners data
 2. Make data searchable
