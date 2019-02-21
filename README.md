@@ -9,26 +9,46 @@ Data for this project is made possible by the The Affordable Care Act, which as 
 
 ---
 # Usage
+Healthmaster can be used to download and unzip chargemasters, search them for keywords, and order the results.
+
 Clone the repo. From the root of the repo, run
 
  `python healthmaster.py`
  
  to fetch all standard hospital charges for the the hospitals in the Partners Healthcare Network in the Greater Boston Area (more hospitals coming soon).
  
- As of right now, methods are in place to scrape the necessary files from the Partners website, download and unpack the files, load them, and perform basic parsing.
+ ### Options
+ `-s, --search` Search the fetched data for a keyword or regex pattern; results will be written to stdout unless specified by the -w option
  
- Currently, all hospital data will be written to `/output` in their native Excel workbook format.
+ `-d, --dest_dir` Write the scraped chargemaster files to the designated directory (full directory path). Default is './output'
+ 
+ `-w, --write_to_file` Write the results from -s to the designated file (full file path)
+ 
+ `-o, --order_by` Order the search results by the designated sorting type. Types are:
+ 
+     - description -- orders billing item descriptions alphanumerically
+     
+     - price -- orders by price, low to high
+     
+     - price_l2h -- same as above
+     
+     - price_h2l -- orders by price, high to low
+ 
+ As of right now, methods are in place to scrape the necessary files from the Partners website, download and unpack the files, load them, perform basic parsing and searching, and write the results to stdout or a file.
+ 
+ Currently, all hospital data will be written to in their native Excel workbook format.
  
  ## Current limitations
- * only tested on Linux environment, Python 2.7.12
+ * only tested on Linux environment, Python 2.7.12, Pandas 0.24.1
  * only works for Partners Healthcare Network hospitals in the Boston area (see their data listing [here](https://www.partners.org/for-patients/Patient-Billing-Financial-Assistance/Hospital-Charge-Listing.aspx))
  * only works for Excel workbooks
  
 ## Prioritized TODOs
-1. Set up accessible web app, hosting Partners data
-2. Make data searchable
-3. Make UI reactive, suitable for mobile
-4. Pull in data from other hospitals in an area, given a zipcode and radius
-5. Make a separate CLI tool
-
+1. Improve search capabilities to be more flexible (CLI/web)
+2. Allow user to search hospitals by distance from their zipcode (CLI/web)
+3. Implement Knapsack or Simplex algorithm for optimizing price of service and distance to hospital (CLI/web)
+4. Set up accessible web app, hosting Partners data
+5. Make UI reactive, suitable for mobile
+6. Set up proper database
+7. Pull in data from other hospitals in an area, given a zipcode and radius
 
