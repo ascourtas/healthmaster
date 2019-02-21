@@ -1,3 +1,16 @@
+"""
+healthmaster.py
+
+A CLI tool to fetch and parse hospital chargemasters (i.e. billing list sent to insurance companies).
+
+See README.md for future TODOs, usage, and explained purpose.
+
+written by: Aristana Scourtas
+last updated: 2/21/19
+
+"""
+
+
 from argparse import ArgumentParser, RawTextHelpFormatter
 from bs4 import BeautifulSoup
 import os
@@ -9,7 +22,7 @@ import zipfile
 """
 Dependencies:
     xlrd
-    
+    numpy
 
 """
 
