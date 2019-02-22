@@ -8,6 +8,14 @@ Thank you to [VOX's surprise billing reporting](https://www.vox.com/health-care/
 Data for this project is made possible by the The Affordable Care Act, which as of January 1st, 2019, [requires all hospitals](https://www.ajc.com/news/national/hospital-prices-are-about-public/2jXYHgoR5CObBj6fSJQQUO/) in the U.S. to make their chargemasters publicly available. 
 
 ---
+# Dependencies
+`pip install` the following packages if you don't have them already:
+- argparse
+- bs4
+- numpy
+- pandas=0.24.1
+- xlrd
+---
 # Usage
 Healthmaster can be used to download and unzip chargemasters, search them for keywords, and order the results.
 
@@ -43,7 +51,7 @@ Clone the repo. From the root of the repo, run
  * only works for Partners Healthcare Network hospitals in the Boston area (see their data listing [here](https://www.partners.org/for-patients/Patient-Billing-Financial-Assistance/Hospital-Charge-Listing.aspx))
  * only works for Excel workbooks
  
-## Prioritized TODOs
+## High-level, prioritized TODOs
 1. Improve search capabilities to be more flexible (CLI/web)
 2. Allow user to search hospitals by distance from their zipcode (CLI/web)
 3. Implement Knapsack or Simplex algorithm for optimizing price of service and distance to hospital (CLI/web)
@@ -51,4 +59,15 @@ Clone the repo. From the root of the repo, run
 5. Make UI reactive, suitable for mobile
 6. Set up proper database
 7. Pull in data from other hospitals in an area, given a zipcode and radius
+
+### Smaller scale TODOs
+- add option to overwrite output file instead of continually adding to it
+- add option to sort by multiple params
+- add option to sort by chargecode
+- add option to write results to .csv instead of .txt
+- break out script into just a main.py script and then a healthmaster.py core module and associated helper modules
+- create a reference.py module for mapping abbreviated hospital names (e.g. MGH) to full names (e.g. Massachusetts General Hospital), and then write the full names to the results file instead of the filenames, for clarity
+- make it the default to not pull down the zip'd files if they already exist in dest_dir
+- add option to overwrite the chargemaster files if desired
+
 
