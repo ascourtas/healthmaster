@@ -13,7 +13,6 @@ Dependencies:
 
 """
 
-
 def read_arguments():
     """
     Define and read in commandline arguments.
@@ -104,7 +103,7 @@ def fetch_zip_files(dest_dir, url, pattern):
 
 def load_data(dir):
     """
-    Load all files in the designated directory (dir) into a dict mapped by filename.
+    Load all Excel files in the designated directory (dir) into a dict mapped by filename.
 
     NOTE: currently only works with Excel files (.xlsx and .xls only).
 
@@ -113,20 +112,24 @@ def load_data(dir):
     """
     data_dict = {}
     for filename in os.listdir(dir):
-        # TODO: remove, just meant for debugging
-        # if "MGH" not in filename : continue
+        filepath = os.path.join(dir, filename)
 
-        # get name and file extension
-        filename_parts = filename.split(".")
+        if os.path.isfile(filepath):
+            # get name and file extension
+            filename_parts = filename.split(".")
+            if len(filename_parts) < 2:
+                print "Error: filename {} does not have a proper file extension; skipping".format(filename)
+                continue
 
-        if filename_parts[1] in ['xlsx', 'xls']:
-            filepath = os.path.join(dir, filename)
-            data = pd.ExcelFile(filepath)
-            print "Successfully loaded {}".format(filepath)
-        else:
-            print "Error: File format {} not currently supported, cannot load {}".format(filename_parts[1], filepath)
-        # map dataframe to filename (sans extension)
-        data_dict[filename_parts[0]] = data
+            # check that we have proper file extension, then load workbook data
+            if filename_parts[-1] in ['xlsx', 'xls']:
+                data = pd.ExcelFile(filepath)
+                print "Successfully loaded {}".format(filepath)
+            else:
+                print "Error: File format {} not currently supported, cannot load {}".format(filename_parts[-1], filepath)
+                continue
+            # map dataframe to filename (sans extension)
+            data_dict[filename_parts[0]] = data
 
     return data_dict
 
